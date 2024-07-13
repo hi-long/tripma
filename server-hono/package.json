@@ -1,0 +1,21 @@
+{
+	"name": "server-hono",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"dev": "bun run --watch index.ts",
+		"db:studio": "bunx prisma studio",
+		"db:migrate": "bunx prisma db push"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"hono": "4.4.9"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"@prisma/client": "^5.16.1",
+		"prisma": "^5.16.1"
+	}
+}

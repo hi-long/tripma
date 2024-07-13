@@ -1,0 +1,183 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_LOCALHOST_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String
+  email    String
+  avatar   String
+
+  cart               Cart?
+  destinationReviews DestinationReview[]
+  bookings           Booking[]
+
+  @@map("user")
+}
+
+model Country {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  cities       City[]
+  ariports     Airport[]
+  airlines     Airline[]
+  destinations Destination[]
+
+  @@map("country")
+}
+
+model City {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  country_id   Int
+  country      Country       @relation(fields: [country_id], references: [id])
+  destinations Destination[]
+  airports     Airport[]
+
+  @@map("city")
+}
+
+model Airport {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  flights    Flight[]
+  city_id    Int
+  city       City     @relation(fields: [city_id], references: [id])
+  country_id Int
+  country    Country  @relation(fields: [country_id], references: [id])
+
+  @@map("airport")
+}
+
+model Airline {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  country_id Int
+  country    Country  @relation(fields: [country_id], references: [id])
+  filghts    Flight[]
+
+  @@map("airline")
+}
+
+model Flight {
+  id                 Int      @id @default(autoincrement())
+  start              DateTime
+  end                DateTime
+  from               Int
+  to                 Int
+  price              Int
+  discount           Float
+  roundtrip_discount Float
+
+  airline_id  Int
+  airline     Airline      @relation(fields: [airline_id], references: [id])
+  airport_id  Int
+  airport     Airport      @relation(fields: [airport_id], references: [id])
+  flightSeats FlightSeat[]
+  carts       Cart[]
+  bookings    Booking[]
+
+  @@map("flight")
+}
+
+model FightPackage {
+  id          Int    @id @default(autoincrement())
+  type        String
+  description String
+  price       Float
+
+  @@map("flight_package")
+}
+
+model FlightSeat {
+  id         Int     @id @default(autoincrement())
+  is_economy Boolean
+  extra_fee  Float
+
+  flight_id        Int
+  flight           Flight            @relation(fields: [flight_id], references: [id])
+  bookingPassenger BookingPassenger?
+
+  @@map("flight_seat")
+}
+
+model Destination {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  rating      Float
+
+  destinationReviews DestinationReview[]
+  country_id         Int
+  country            Country             @relation(fields: [country_id], references: [id])
+  city_id            Int
+  city               City                @relation(fields: [city_id], references: [id])
+
+  @@map("destination")
+}
+
+model Booking {
+  id        Int      @id @default(autoincrement())
+  total     Float
+  createdAt DateTime @default(now())
+
+  bookingPassengers BookingPassenger[]
+  user_id           Int
+  user              User               @relation(fields: [user_id], references: [id])
+  flight_id         Int
+  flight            Flight             @relation(fields: [flight_id], references: [id])
+
+  @@map("booking")
+}
+
+model BookingPassenger {
+  id      Int      @id @default(autoincrement())
+  name    String
+  dob     DateTime
+  email   String
+  phone   String
+  address String
+
+  fight_seat_id Int        @unique
+  flightSeetId  FlightSeat @relation(fields: [fight_seat_id], references: [id])
+  booking_id    Int
+  booking       Booking    @relation(fields: [booking_id], references: [id])
+
+  @@map("booking_passenger")
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+
+  user_id   Int    @unique
+  user      User   @relation(fields: [user_id], references: [id])
+  flight_id Int
+  flight    Flight @relation(fields: [flight_id], references: [id])
+
+  @@map("cart")
+}
+
+model DestinationReview {
+  id     Int    @id @default(autoincrement())
+  text   String
+  rating Int
+
+  destination_id Int
+  destination    Destination @relation(fields: [destination_id], references: [id])
+  user_id        Int
+  user           User        @relation(fields: [user_id], references: [id])
+
+  @@map("destination_review")
+}

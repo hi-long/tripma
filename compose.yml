@@ -1,0 +1,30 @@
+services:
+  server-hono:
+    build:
+      context: ./server-hono
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    develop:
+      watch:
+        - path: ./server-hono
+          target: /app
+          action: sync
+        - path: ./server-hono/package.json
+          action: rebuild
+    depends_on:
+      - postgres
+  postgres:
+    env_file: docker.env
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+  pgAdmin:
+    image: dpage/pgadmin4
+    ports:
+      - 80:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=nguyenlonghai21700@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+    depends_on:
+      - postgres
